@@ -1,1 +1,4 @@
 node_modules/
+nodemon_modules/
+.DS_Store
+*.log
