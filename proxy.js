@@ -1,13 +1,17 @@
+/**
+ * HTTP Proxy Server with HTML modification capabilities
+ */
 const http = require('http');
 const httpProxy = require('http-proxy');
-const cheerio = require('cheerio');
+const config = require('./config');
+const HtmlModifier = require('./lib/HtmlModifier');
 
-const PORT = 8080;
-const TARGET = 'http://httpbin.org';
+// Create HtmlModifier instance
+const htmlModifier = new HtmlModifier();
 
 // Create proxy server
 const proxy = httpProxy.createProxyServer({
-  target: TARGET,
+  target: config.target,
   changeOrigin: true
 });
 
@@ -17,51 +21,6 @@ proxy.on('error', (err, req, res) => {
   res.writeHead(502, { 'Content-Type': 'text/plain' });
   res.end('Proxy Error: ' + err.message);
 });
-
-// Modify HTML response
-function modifyHtml(html, options = {}) {
-  const $ = cheerio.load(html);
-  
-  // Example modifications:
-  // 1. Replace specific text
-  if (options.replaceText) {
-    Object.entries(options.replaceText).forEach(([search, replace]) => {
-      $('body').contents().each((i, el) => {
-        if (el.type === 'text') {
-          const newText = el.data.replace(new RegExp(search, 'gi'), replace);
-          $(el).replaceWith(newText);
-        }
-      });
-    });
-  }
-  
-  // 2. Replace icons/images
-  if (options.replaceImages) {
-    Object.entries(options.replaceImages).forEach(([search, replace]) => {
-      $('img[src*="' + search + '"]').each((i, el) => {
-        $(el).attr('src', replace);
-      });
-    });
-  }
-  
-  // 3. Modify tables
-  if (options.modifyTables) {
-    $('table').each((i, table) => {
-      $(table).css('border', '2px solid red');
-      $(table).css('border-collapse', 'collapse');
-      $('th, td', table).css('padding', '10px');
-      $('th', table).css('background-color', '#f0f0f0');
-    });
-  }
-  
-  // 4. Add custom CSS
-  if (options.addCSS) {
-    const style = $('<style>').text(options.addCSS);
-    $('head').append(style);
-  }
-  
-  return $.html();
-}
 
 // Create HTTP server to intercept requests
 const server = http.createServer((req, res) => {
@@ -81,25 +40,26 @@ const server = http.createServer((req, res) => {
     if (chunk) chunks.push(chunk);
     
     const contentType = res.getHeader('content-type') || '';
-    const contentLength = res.getHeader('content-length');
     
     // Only modify HTML responses
     if (contentType.includes('text/html') && chunks.length > 0) {
-      const originalHtml = Buffer.concat(chunks).toString('utf8');
-      
-      // Apply modifications
-      const modifiedHtml = modifyHtml(originalHtml, {
-        addCSS: 'body { font-family: Arial !important; }',
-        modifyTables: true,
-        replaceText: {
-          'Hello': 'Hello (Modified!)',
-          'Example': 'Demo'
-        }
-      });
-      
-      // Update content length
-      res.setHeader('Content-Length', Buffer.byteLength(modifiedHtml));
-      return originalEnd.call(res, modifiedHtml);
+      try {
+        const originalHtml = Buffer.concat(chunks).toString('utf8');
+        
+        // Apply modifications using HtmlModifier
+        const modifiedHtml = htmlModifier.modify(
+          originalHtml, 
+          config.modifications
+        );
+        
+        // Update content length
+        res.setHeader('Content-Length', Buffer.byteLength(modifiedHtml));
+        return originalEnd.call(res, modifiedHtml);
+      } catch (err) {
+        console.error('HTML Modification Error:', err.message);
+        // Fallback to original response
+        return originalEnd.call(res, Buffer.concat(chunks));
+      }
     }
     
     return originalEnd.apply(this, arguments);
@@ -109,8 +69,8 @@ const server = http.createServer((req, res) => {
   proxy.web(req, res);
 });
 
-server.listen(PORT, () => {
-  console.log(`HTTP Proxy Server running on http://localhost:${PORT}`);
-  console.log(`Forwarding to ${TARGET}`);
+server.listen(config.port, () => {
+  console.log(`HTTP Proxy Server running on http://localhost:${config.port}`);
+  console.log(`Forwarding to ${config.target}`);
   console.log('Press Ctrl+C to stop');
 });
