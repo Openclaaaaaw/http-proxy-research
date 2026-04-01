@@ -5,13 +5,26 @@
   "main": "proxy.js",
   "scripts": {
     "start": "node proxy.js",
-    "test": "node test-server.js"
+    "test": "node test-proxy.js",
+    "test:server": "node test-server.js",
+    "example": "node examples/usage.js"
   },
+  "keywords": [
+    "http-proxy",
+    "proxy-server",
+    "html-modification",
+    "cheerio"
+  ],
+  "author": "",
+  "license": "MIT",
   "dependencies": {
     "cheerio": "^1.0.0-rc.12",
     "http-proxy": "^1.18.1"
   },
   "devDependencies": {
-    "nodemon": "^3.1.14"
+    "nodemon": "^3.0.0"
+  },
+  "engines": {
+    "node": ">=14.0.0"
   }
 }
