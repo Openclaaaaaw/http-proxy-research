@@ -1,17 +1,20 @@
-# HTTP Proxy Server
+# HTTP Proxy Server with HTML Modification
 
-Node.js HTTP proxy server with HTML modification capabilities.
+A Node.js-based HTTP proxy server that can intercept and modify web page content in real-time.
 
-## Features
+## ✨ Features
 
-- HTTP proxy forwarding
-- HTML content modification using Cheerio
-- Text replacement
-- Image/icon replacement
-- Table styling modifications
-- Custom CSS injection
+- **HTTP Proxy**: Forward HTTP requests to target servers
+- **HTML Modification**: Modify HTML content using Cheerio
+  - Replace text patterns
+  - Replace images/icons
+  - Style tables
+  - Inject custom CSS
+- **Middleware System**: Extensible architecture for custom modifications
+- **Logging**: Detailed request/response logging
+- **Configuration**: Easy-to-use config file for modification rules
 
-## Quick Start
+## 🚀 Quick Start
 
 ```bash
 # Install dependencies
@@ -19,41 +22,102 @@ npm install
 
 # Start the proxy server
 npm start
-
-# Or with custom config
-PROXY_PORT=8080 PROXY_TARGET=http://example.com npm start
 ```
 
-## Configuration
+Configure your browser to use `localhost:8080` as HTTP proxy.
 
-Edit `config.js` to customize modification rules:
+## ⚙️ Configuration
+
+Edit `config.js` to customize:
 
 ```javascript
 modifications: {
+  // Text replacements (search -> replacement)
   replaceText: {
     'Hello': 'Hello (Modified!)',
-    'Example': 'Demo'
+    'World': 'Proxy World'
   },
+  
+  // Image/icon replacements (src pattern -> new URL)
   replaceImages: {
-    'icon': 'https://example.com/new-icon.png'
+    'icon': 'https://example.com/new-icon.png',
+    'logo': 'https://example.com/logo.png'
   },
+  
+  // Enable table styling
   modifyTables: true,
-  injectCSS: 'body { background: #f0f0f0; }'
+  
+  // Inject custom CSS
+  injectCSS: `
+    body { background: #f0f0f0; }
+    table { border-collapse: collapse; }
+  `
 }
 ```
 
-## Usage
+## 📁 Project Structure
 
-Configure your browser or application to use:
-- **Proxy:** localhost:8080
-- **Target server:** configured in config.js (default: httpbin.org)
-
-Example:
-```bash
-curl -x http://localhost:8080 http://httpbin.org/html
+```
+http-proxy-research/
+├── proxy.js           # Main proxy server
+├── config.js          # Configuration & modification rules
+├── test-server.js     # Local test HTTP server
+├── test-proxy.js      # Test script
+├── lib/
+│   ├── HtmlModifier.js   # HTML modification logic
+│   ├── Logger.js         # Logging utility
+│   └── Middleware.js     # Middleware system
+├── examples/
+│   └── middleware-example.js  # Example middlewares
+└── README.md
 ```
 
-## Architecture
+## 🧪 Testing
 
-- `proxy.js` - Main proxy server with response interception
-- `config.js` - Modification rules and configuration
+```bash
+# Terminal 1: Start test server
+node test-server.js
+
+# Terminal 2: Start proxy
+node proxy.js
+
+# Terminal 3: Test via curl
+curl -x http://localhost:8080 http://localhost:3000
+```
+
+## 🔧 Environment Variables
+
+```bash
+PROXY_PORT=8080         # Proxy server port
+PROXY_TARGET=http://example.com  # Target server
+```
+
+## 📝 API
+
+### HtmlModifier
+
+```javascript
+const HtmlModifier = require('./lib/HtmlModifier');
+const modifier = new HtmlModifier();
+
+const modified = modifier.modify(html, {
+  replaceText: { 'old': 'new' },
+  injectCSS: 'body { color: red; }'
+});
+```
+
+### Middleware
+
+```javascript
+const { Middleware } = require('./lib/Middleware');
+
+const mw = new Middleware();
+mw.use((req, res, next) => {
+  console.log('Request:', req.url);
+  next();
+});
+```
+
+## 📜 License
+
+MIT
