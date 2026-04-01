@@ -1,45 +1,27 @@
 /**
- * Configuration for HTTP Proxy modifications
+ * Configuration for Google HTTPS modification
  */
 module.exports = {
-  // Server settings
-  port: process.env.PROXY_PORT || 8080,
-  target: process.env.PROXY_TARGET || 'http://httpbin.org',
+  port: 8888,
+  // Use http for the target - the proxy will handle HTTPS
+  target: 'http://www.google.com',
   
-  // Modification rules
   modifications: {
-    // Replace text patterns
     replaceText: {
-      'Hello': 'Hello (Modified!)',
-      'Example': 'Demo',
-      'World': 'Proxy World'
+      'Google': 'G○○○gle',
+      'Search': 'Searζh'
     },
     
-    // Replace images/icons by matching src pattern
-    replaceImages: {
-      'icon': 'https://via.placeholder.com/50',
-      'logo': 'https://via.placeholder.com/100'
-    },
+    replaceImages: {},
     
-    // Enable table modifications
-    modifyTables: true,
+    modifyTables: false,
     
-    // Custom CSS to inject
     injectCSS: `
       body { 
-        font-family: Arial, sans-serif !important; 
+        background-color: #f0f0ff !important;
       }
-      table {
-        border-collapse: collapse;
-      }
-      th {
-        background-color: #4CAF50 !important;
-        color: white !important;
-      }
-      td, th {
-        padding: 10px !important;
-        border: 1px solid #ddd !important;
-      }
+      /* Make modifications visible */
+      img { border: 3px solid red !important; }
     `
   }
 };
