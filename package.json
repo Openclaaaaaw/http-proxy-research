@@ -1,0 +1,14 @@
+{
+  "name": "http-proxy-research",
+  "version": "1.0.0",
+  "description": "HTTP Proxy Server for webpage modification",
+  "main": "proxy.js",
+  "scripts": {
+    "start": "node proxy.js",
+    "test": "node test-server.js"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.12",
+    "http-proxy": "^1.18.1"
+  }
+}
