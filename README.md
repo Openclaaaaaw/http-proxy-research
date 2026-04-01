@@ -1,30 +1,59 @@
-# HTTP Proxy Server 研究
+# HTTP Proxy Server
 
-研究如何建立 HTTP Proxy Server 來修改網頁內容（替換 icon、修改文字等）
+Node.js HTTP proxy server with HTML modification capabilities.
 
-## 目標
-- 建立 HTTP Proxy Server
-- 能夠攔截和修改 HTTP 請求/回應
-- 替換頁面中的 icon、文字、表格等元素
-- **目標協議：HTTP**（非 HTTPS）
+## Features
 
-## 研究階段
+- HTTP proxy forwarding
+- HTML content modification using Cheerio
+- Text replacement
+- Image/icon replacement
+- Table styling modifications
+- Custom CSS injection
 
-### 階段 1：方案評估 ✅
-- [ ] mitmproxy（Python）
-- [ ] Node.js http-proxy
-- [ ] Squid + custom configuration
-- [ ] Browser Extension
+## Quick Start
 
-### 階段 2：原型開發
-- [ ] 實現基本 HTTP Proxy
-- [ ] 實現 response 修改
-- [ ] 測試頁面修改功能
+```bash
+# Install dependencies
+npm install
 
-### 階段 3：優化
-- [ ] 效能優化
-- [ ] 配置界面
-- [ ] 部署腳本
+# Start the proxy server
+npm start
 
-## 為什麼不用 HTTPS？
-HTTPS 需要 MITM 證書，會比較複雜。我們先專注 HTTP。
+# Or with custom config
+PROXY_PORT=8080 PROXY_TARGET=http://example.com npm start
+```
+
+## Configuration
+
+Edit `config.js` to customize modification rules:
+
+```javascript
+modifications: {
+  replaceText: {
+    'Hello': 'Hello (Modified!)',
+    'Example': 'Demo'
+  },
+  replaceImages: {
+    'icon': 'https://example.com/new-icon.png'
+  },
+  modifyTables: true,
+  injectCSS: 'body { background: #f0f0f0; }'
+}
+```
+
+## Usage
+
+Configure your browser or application to use:
+- **Proxy:** localhost:8080
+- **Target server:** configured in config.js (default: httpbin.org)
+
+Example:
+```bash
+curl -x http://localhost:8080 http://httpbin.org/html
+```
+
+## Architecture
+
+- `proxy.js` - Main proxy server with response interception
+- `config.js` - Modification rules and configuration
